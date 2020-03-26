@@ -8,12 +8,20 @@ module.exports = {
         const [count] = await connection('incidents')
             .count();
 
-        response.header('X-Total-Count', count['count(*)']); 
+        response.header('X-Total-Count', count['count(*)']);
 
         const incidents = await connection('incidents')
+            .join('ongs', 'ongs.id', '=', 'incidents.ong_id')
             .limit(5)  // retorna apenas 5 registros
             .offset((page - 1) * 5) // pula 5 registros por pagina
-            .select('*');
+            .select([
+                'incidents.*',
+                'ongs.name',
+                'ongs.email',
+                'ongs.whatsapp',
+                'ongs.city',
+                'ongs.uf'
+            ]);
 
         return response.json(incidents);
     },
